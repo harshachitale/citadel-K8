@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: csv-config
+  labels:
+    app: csvserver
+data:
+  gensvc.sh: |
+    #!/bin/bash
+    mkdir /csvserver
+    cd /csvserver
+    touch inputdata
+    > inputdata
+    i=0
+    num=9
+    while [ $i -le $num ]
+       do
+        echo "$i, $RANDOM" >> /csvserver/inputdata
+        i=$(($i+1))
+       done
+  inputdata:
+     cat /csvserver/inputdata     

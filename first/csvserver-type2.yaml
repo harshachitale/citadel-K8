@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  csvserver
+  namespace: default
+  labels:
+    app:  csvserver
+spec:
+  selector:
+    matchLabels:
+      app: csvserver
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app:  csvserver
+    spec:
+      initContainers:
+      - name: createfile
+        image: busybox
+        command: ['sh', '-c']
+        args: ['sh /csvserver/gensvc.sh']
+        volumeMounts:
+          - mountPath: /csvserver
+            name: csv-input
+          - mountPath: /csvserver/gensvc.sh  
+            name: csv
+            subPath: gencsv.sh
+      containers:
+      - name:  csvserver
+        image:  infracloudio/csvserver:latest
+        ports:
+        - containerPort: 9300
+          name:  csvserver
+        volumeMounts:
+        - name: csv
+          mountPath: /csvserver/inputdata
+          subPath: inputdata
+          readOnly: true
+      volumes:
+        - name: csv
+          configMap:
+            name: csv-config
+        - name: csv-input
+          emptyDir: {}
+            
+                                                
+                
+
+      
